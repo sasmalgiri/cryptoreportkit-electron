@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { Play, Download, Search, TrendingUp, TrendingDown, BarChart3, Loader2 } from 'lucide-react';
 import { getCoinMarketChart, searchCoins } from '../hooks/useElectron';
 import { sma, rsi, dailyReturns, maxDrawdown, sharpeRatio } from '../utils/indicators';
@@ -117,16 +117,17 @@ export default function Backtester() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const searchTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const handleSearch = useCallback((q: string) => {
     setQuery(q);
     if (q.length < 2) { setSuggestions([]); return; }
-    const timer = setTimeout(async () => {
+    if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+    searchTimerRef.current = setTimeout(async () => {
       try {
         const res = await searchCoins(q);
         setSuggestions(res.coins.slice(0, 6).map(c => ({ id: c.id, name: c.name, symbol: c.symbol })));
       } catch { setSuggestions([]); }
     }, 300);
-    return () => clearTimeout(timer);
   }, []);
 
   const selectCoin = (c: { id: string; name: string }) => {

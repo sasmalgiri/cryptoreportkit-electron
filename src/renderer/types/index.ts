@@ -125,8 +125,9 @@ export interface WatchlistItem {
 export interface AppSettings {
   currency: string;
   refresh_interval: number;
-  tray_coins: string[];
+  tray_coins: string;
   theme: string;
+  notifications_enabled: string;
 }
 
 export interface LicenseResult {
@@ -163,6 +164,8 @@ export interface SearchResult {
 export interface PriceAlert {
   id: string;
   coin_id: string;
+  symbol: string;
+  name: string;
   target_price: number;
   direction: 'above' | 'below';
   active: boolean;

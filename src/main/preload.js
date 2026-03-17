@@ -43,6 +43,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getPriceAlerts: () => ipcRenderer.invoke('db:getPriceAlerts'),
   deletePriceAlert: (id) => ipcRenderer.invoke('db:deletePriceAlert', id),
   togglePriceAlert: (id) => ipcRenderer.invoke('db:togglePriceAlert', id),
+  onAlertTriggered: (callback) => {
+    ipcRenderer.on('alert:triggered', (_event, alertId) => callback(alertId));
+  },
 
   // Settings
   getSettings: () => ipcRenderer.invoke('db:getSettings'),

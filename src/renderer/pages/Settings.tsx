@@ -179,7 +179,7 @@ export default function Settings() {
 
         <p className="text-xs text-gray-600 mt-3">
           Get a free key at{' '}
-          <span className="text-emerald-400">coingecko.com/en/api</span>. Pro
+          <button type="button" onClick={() => window.electronAPI?.openExternal('https://www.coingecko.com/en/api')} className="text-emerald-400 hover:underline">coingecko.com/en/api</button>. Pro
           keys (CG-*) unlock higher rate limits.
         </p>
       </section>

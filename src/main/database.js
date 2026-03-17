@@ -95,7 +95,7 @@ function registerDatabaseHandlers() {
   ipcMain.handle('db:getPortfolioValue', async () => {
     const entries = db.prepare('SELECT * FROM portfolio').all();
     if (entries.length === 0) {
-      return { entries: [], total_value: 0, total_cost: 0, total_pnl: 0, total_pnl_pct: 0 };
+      return { entries: [], total_invested: 0, current_value: 0, total_pnl: 0, total_pnl_percentage: 0 };
     }
 
     // Fetch current prices
@@ -116,18 +116,27 @@ function registerDatabaseHandlers() {
         const pnlPct = cost > 0 ? (pnl / cost) * 100 : 0;
         totalValue += value;
         totalCost += cost;
-        return { ...e, current_price: currentPrice, current_value: value, cost_basis: cost, pnl, pnl_pct: pnlPct };
+        return { entry: e, current_price: currentPrice, current_value: value, pnl, pnl_percentage: pnlPct };
       });
 
       return {
         entries: enriched,
-        total_value: totalValue,
-        total_cost: totalCost,
+        total_invested: totalCost,
+        current_value: totalValue,
         total_pnl: totalValue - totalCost,
-        total_pnl_pct: totalCost > 0 ? ((totalValue - totalCost) / totalCost) * 100 : 0,
+        total_pnl_percentage: totalCost > 0 ? ((totalValue - totalCost) / totalCost) * 100 : 0,
       };
     } catch {
-      return { entries, total_value: 0, total_cost: 0, total_pnl: 0, total_pnl_pct: 0 };
+      // On fetch error, return entries with zero prices
+      const fallback = entries.map((e) => ({
+        entry: e,
+        current_price: 0,
+        current_value: 0,
+        pnl: -(e.amount * e.buy_price),
+        pnl_percentage: -100,
+      }));
+      const totalCost = entries.reduce((s, e) => s + e.amount * e.buy_price, 0);
+      return { entries: fallback, total_invested: totalCost, current_value: 0, total_pnl: -totalCost, total_pnl_percentage: -100 };
     }
   });
 
@@ -196,4 +205,8 @@ function registerDatabaseHandlers() {
   });
 }
 
-module.exports = { initDatabase, registerDatabaseHandlers };
+function getDb() {
+  return db;
+}
+
+module.exports = { initDatabase, registerDatabaseHandlers, getDb };

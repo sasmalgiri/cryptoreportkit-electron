@@ -1,19 +1,21 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Star, Trash2, RefreshCw } from 'lucide-react';
-import { getWatchlist, removeFromWatchlist, getMarkets } from '../hooks/useElectron';
+import { Star, Trash2, RefreshCw, AlertTriangle, Loader2 } from 'lucide-react';
+import { getWatchlist, removeFromWatchlist, getMarkets, addToWatchlist } from '../hooks/useElectron';
 import { SearchBar } from '../components/SearchBar';
-import { addToWatchlist } from '../hooks/useElectron';
 import { useAppStore } from '../stores/appStore';
+import { toast } from '../components/Toast';
 import type { WatchlistItem, CoinMarket } from '../types';
 
 export default function Watchlist() {
   const [items, setItems] = useState<WatchlistItem[]>([]);
   const [marketData, setMarketData] = useState<Map<string, CoinMarket>>(new Map());
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const currency = useAppStore((s) => s.currency);
 
   const fetchData = useCallback(async () => {
     try {
+      setError(null);
       const watchlistItems = await getWatchlist();
       setItems(watchlistItems);
 
@@ -24,7 +26,7 @@ export default function Watchlist() {
         setMarketData(map);
       }
     } catch (err) {
-      console.error('Failed to fetch watchlist:', err);
+      setError('Failed to load watchlist data. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -35,13 +37,23 @@ export default function Watchlist() {
   }, [fetchData]);
 
   const handleRemove = async (coinId: string) => {
-    await removeFromWatchlist(coinId);
-    setItems((prev) => prev.filter((i) => i.coin_id !== coinId));
+    try {
+      await removeFromWatchlist(coinId);
+      setItems((prev) => prev.filter((i) => i.coin_id !== coinId));
+      toast('info', 'Removed from watchlist');
+    } catch {
+      toast('error', 'Failed to remove from watchlist');
+    }
   };
 
   const handleAdd = async (coinId: string, symbol: string, name: string) => {
-    await addToWatchlist(coinId, symbol, name);
-    await fetchData();
+    try {
+      await addToWatchlist(coinId, symbol, name);
+      toast('success', `${name || coinId} added to watchlist`);
+      await fetchData();
+    } catch {
+      toast('error', 'Failed to add to watchlist');
+    }
   };
 
   return (
@@ -68,9 +80,21 @@ export default function Watchlist() {
         placeholder="Search to add a coin..."
       />
 
+      {/* Error */}
+      {error && (
+        <div className="flex items-center gap-2 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-sm text-red-400">
+          <AlertTriangle className="w-4 h-4 shrink-0" />
+          {error}
+          <button type="button" onClick={fetchData} className="ml-auto text-xs underline hover:text-red-300">Retry</button>
+        </div>
+      )}
+
       {/* Watchlist items */}
       {loading ? (
-        <div className="text-center text-gray-500 py-12">Loading...</div>
+        <div className="flex items-center justify-center py-12 gap-2 text-gray-500">
+          <Loader2 className="w-5 h-5 animate-spin" />
+          Loading watchlist...
+        </div>
       ) : items.length === 0 ? (
         <div className="text-center py-16">
           <Star className="w-12 h-12 text-gray-700 mx-auto mb-4" />

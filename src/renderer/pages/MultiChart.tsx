@@ -50,11 +50,12 @@ export default function MultiChart() {
 
   const changeLayout = (l: typeof LAYOUTS[number]) => {
     setLayout(l);
-    while (selections.length < l.count) {
-      const unused = DEFAULTS.find(d => !selections.includes(d));
-      selections.push(unused || DEFAULTS[0]);
+    const next = [...selections];
+    while (next.length < l.count) {
+      const unused = DEFAULTS.find(d => !next.includes(d));
+      next.push(unused || DEFAULTS[0]);
     }
-    setSelections([...selections]);
+    setSelections(next);
   };
 
   if (loading) return <div className="text-center py-12 text-gray-500">Loading...</div>;

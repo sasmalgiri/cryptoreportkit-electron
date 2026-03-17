@@ -48,7 +48,11 @@ export default function ExchangeImport() {
       // Desktop app calls the CRK API server
       const res = await fetch(
         `https://cryptoreportkit.com/api/v1/exchange/${selectedExchange}/transactions`,
-        { headers: { 'Content-Type': 'application/json' } },
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ apiKey, apiSecret }),
+        },
       );
 
       if (!res.ok) {

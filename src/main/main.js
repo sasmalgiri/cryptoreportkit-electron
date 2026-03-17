@@ -1,6 +1,6 @@
-const { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage, shell, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, Tray, Menu, nativeImage, shell, dialog, Notification } = require('electron');
 const path = require('path');
-const { initDatabase, registerDatabaseHandlers } = require('./database');
+const { initDatabase, registerDatabaseHandlers, getDb } = require('./database');
 const { registerCoinGeckoHandlers } = require('./coingecko');
 const { registerKeychainHandlers } = require('./keychain');
 const { registerLicenseHandlers } = require('./license');
@@ -129,19 +129,73 @@ function createTray() {
 
 async function updateTrayPrices() {
   try {
+    // Read tray_coins from settings (default: bitcoin,ethereum)
+    let coinIds = 'bitcoin,ethereum';
+    const db = getDb();
+    if (db) {
+      const row = db.prepare("SELECT value FROM settings WHERE key = 'tray_coins'").get();
+      if (row?.value) coinIds = row.value;
+    }
+
     const res = await fetch(
-      'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd&include_24hr_change=true'
+      `https://api.coingecko.com/api/v3/simple/price?ids=${coinIds}&vs_currencies=usd&include_24hr_change=true`
     );
     const data = await res.json();
-    const btc = data.bitcoin;
-    const eth = data.ethereum;
-    const btcPrice = Math.round(btc.usd).toLocaleString();
-    const ethPrice = Math.round(eth.usd).toLocaleString();
-    const btcChange = btc.usd_24h_change?.toFixed(1) ?? '0';
-    const ethChange = eth.usd_24h_change?.toFixed(1) ?? '0';
-    tray?.setToolTip(`BTC: $${btcPrice} (${btcChange}%) | ETH: $${ethPrice} (${ethChange}%)`);
+    const parts = [];
+    for (const id of coinIds.split(',')) {
+      const coin = data[id.trim()];
+      if (!coin) continue;
+      const label = id.trim().charAt(0).toUpperCase() + id.trim().slice(1);
+      const price = Math.round(coin.usd).toLocaleString();
+      const change = coin.usd_24h_change?.toFixed(1) ?? '0';
+      parts.push(`${label}: $${price} (${change}%)`);
+    }
+    if (parts.length) tray?.setToolTip(parts.join(' | '));
   } catch {
     // Silently fail
+  }
+}
+
+// Background alert checking — every 2 minutes
+async function checkPriceAlerts() {
+  try {
+    const db = getDb();
+    if (!db) return;
+    const alerts = db.prepare('SELECT * FROM price_alerts WHERE active = 1').all();
+    if (alerts.length === 0) return;
+
+    const coinIds = [...new Set(alerts.map((a) => a.coin_id))].join(',');
+    const res = await fetch(
+      `https://api.coingecko.com/api/v3/simple/price?ids=${coinIds}&vs_currencies=usd`
+    );
+    const prices = await res.json();
+
+    for (const alert of alerts) {
+      const currentPrice = prices[alert.coin_id]?.usd;
+      if (currentPrice == null) continue;
+
+      const triggered =
+        (alert.direction === 'above' && currentPrice >= alert.target_price) ||
+        (alert.direction === 'below' && currentPrice <= alert.target_price);
+
+      if (triggered) {
+        const displayName = alert.name || alert.coin_id.replace(/-/g, ' ');
+        const dir = alert.direction === 'above' ? 'above' : 'below';
+        new Notification({
+          title: `Price Alert: ${displayName}`,
+          body: `${displayName} is now $${currentPrice.toLocaleString()} — ${dir} your target of $${alert.target_price.toLocaleString()}`,
+          icon: path.join(__dirname, '../../build/icon.ico'),
+        }).show();
+
+        // Deactivate triggered alert
+        db.prepare('UPDATE price_alerts SET active = 0 WHERE id = ?').run(alert.id);
+
+        // Notify renderer to refresh
+        mainWindow?.webContents.send('alert:triggered', alert.id);
+      }
+    }
+  } catch {
+    // Silently fail — will retry next cycle
   }
 }
 
@@ -176,6 +230,10 @@ app.whenReady().then(async () => {
 
   createWindow();
   createTray();
+
+  // Start background alert checking (every 2 minutes)
+  checkPriceAlerts();
+  setInterval(checkPriceAlerts, 120000);
 });
 
 app.on('window-all-closed', () => {

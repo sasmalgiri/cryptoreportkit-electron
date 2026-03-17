@@ -48,6 +48,7 @@ declare global {
       getPriceAlerts: () => Promise<any[]>;
       deletePriceAlert: (id: string) => Promise<any>;
       togglePriceAlert: (id: string) => Promise<any>;
+      onAlertTriggered: (cb: (alertId: string) => void) => void;
       getSettings: () => Promise<any>;
       updateSettings: (key: string, value: any) => Promise<any>;
       setApiKey: (key: string) => Promise<any>;
@@ -224,8 +225,8 @@ export async function updateSettings(settings: Partial<AppSettings>): Promise<vo
 /*  Alerts                                                              */
 /* ------------------------------------------------------------------ */
 
-export async function addPriceAlert(coinId: string, targetPrice: number, direction: string): Promise<PriceAlert> {
-  return api().addPriceAlert({ coin_id: coinId, target_price: targetPrice, direction });
+export async function addPriceAlert(coinId: string, targetPrice: number, direction: string, symbol = '', name = ''): Promise<PriceAlert> {
+  return api().addPriceAlert({ coin_id: coinId, symbol, name, target_price: targetPrice, direction });
 }
 
 export async function getPriceAlerts(): Promise<PriceAlert[]> {

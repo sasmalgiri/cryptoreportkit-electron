@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Minus, Square, X, Copy } from 'lucide-react';
+import { Minus, Square, X } from 'lucide-react';
 
 export function TitleBar() {
   const [isMaximized, setIsMaximized] = useState(false);
@@ -43,7 +43,10 @@ export function TitleBar() {
           className="h-full px-3.5 flex items-center justify-center text-gray-500 hover:text-white hover:bg-gray-700/50 transition-colors"
         >
           {isMaximized ? (
-            <Copy className="w-3 h-3" />
+            <svg className="w-3 h-3" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.2">
+              <rect x="2" y="3" width="6" height="6" rx="0.5" />
+              <polyline points="3,3 3,1.5 8.5,1.5 8.5,7 7,7" />
+            </svg>
           ) : (
             <Square className="w-3 h-3" />
           )}

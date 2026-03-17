@@ -80,7 +80,8 @@ export default function AskAI() {
     setInput('');
     setThinking(true);
 
-    await new Promise(r => setTimeout(r, 500 + Math.random() * 1000));
+    // Small delay for visual feedback, then respond from local knowledge base
+    await new Promise(r => setTimeout(r, 150));
 
     let answer = findAnswer(text);
     if (text.toLowerCase().includes('sentiment') || text.toLowerCase().includes('market')) {

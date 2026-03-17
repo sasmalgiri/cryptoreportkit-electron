@@ -98,7 +98,7 @@ export default function Sentiment() {
                     <rect x="0" y="40" width="400" height="20" fill="#f97316" opacity="0.05" />
                     <rect x="0" y="60" width="400" height="20" fill="#ef4444" opacity="0.05" />
                     <line x1="0" y1="40" x2="400" y2="40" stroke="#374151" strokeWidth="0.5" strokeDasharray="4" />
-                    <polyline points={path} fill="none" stroke="#10b981" strokeWidth="2" />
+                    <path d={path} fill="none" stroke="#10b981" strokeWidth="2" />
                   </>
                 );
               })()}

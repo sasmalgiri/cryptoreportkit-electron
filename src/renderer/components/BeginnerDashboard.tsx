@@ -201,15 +201,15 @@ function ChecklistCard({
   time: string;
   color: string;
 }) {
-  const borderColors: Record<string, string> = {
-    emerald: 'border-emerald-500/30',
-    amber: 'border-amber-500/30',
-    blue: 'border-blue-500/30',
-    purple: 'border-purple-500/30',
+  const hoverBorderClasses: Record<string, string> = {
+    emerald: 'hover:border-emerald-500/30',
+    amber: 'hover:border-amber-500/30',
+    blue: 'hover:border-blue-500/30',
+    purple: 'hover:border-purple-500/30',
   };
 
   return (
-    <div className={`flex items-center gap-3 p-4 rounded-xl bg-gray-800/60 border ${checked ? 'border-emerald-500/30 bg-emerald-500/5' : `border-gray-700/50 hover:${borderColors[color] || ''}`} transition-all`}>
+    <div className={`flex items-center gap-3 p-4 rounded-xl bg-gray-800/60 border ${checked ? 'border-emerald-500/30 bg-emerald-500/5' : `border-gray-700/50 ${hoverBorderClasses[color] || ''}`} transition-all`}>
       {/* Checkbox */}
       <button
         type="button"

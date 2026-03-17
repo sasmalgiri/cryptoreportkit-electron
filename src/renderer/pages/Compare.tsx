@@ -144,7 +144,7 @@ export default function Compare() {
             const data = normalizedData[c.id];
             if (!data || data.length < 2) return null;
             const path = data.map((d, i) => `${i === 0 ? 'M' : 'L'} ${((d.x - minX) / xRange) * chartW} ${chartH - ((d.y - minY) / yRange) * chartH}`).join(' ');
-            return <polyline key={c.id} points={path} fill="none" stroke={COLORS[idx]} strokeWidth="2" />;
+            return <path key={c.id} d={path} fill="none" stroke={COLORS[idx]} strokeWidth="2" />;
           })}
         </svg>
         {/* Legend */}
