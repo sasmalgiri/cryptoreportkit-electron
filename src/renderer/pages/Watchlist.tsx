@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Star, Trash2, RefreshCw, AlertTriangle, Loader2 } from 'lucide-react';
-import { getWatchlist, removeFromWatchlist, getMarkets, addToWatchlist } from '../hooks/useElectron';
+import { getWatchlist, removeFromWatchlist, getMarkets, addToWatchlist, getSimplePrice } from '../hooks/useElectron';
 import { SearchBar } from '../components/SearchBar';
 import { useAppStore } from '../stores/appStore';
 import { toast } from '../components/Toast';
@@ -23,6 +23,36 @@ export default function Watchlist() {
         const markets = await getMarkets(currency, 1, 250);
         const map = new Map<string, CoinMarket>();
         markets.forEach((m) => map.set(m.id, m));
+
+        // Fetch prices for watchlist coins not in top 250
+        const missing = watchlistItems.filter((w) => !map.has(w.coin_id)).map((w) => w.coin_id);
+        if (missing.length > 0) {
+          try {
+            const prices = await getSimplePrice(missing.join(','));
+            for (const id of missing) {
+              if (prices[id]) {
+                map.set(id, {
+                  id,
+                  symbol: watchlistItems.find((w) => w.coin_id === id)?.symbol || id,
+                  name: watchlistItems.find((w) => w.coin_id === id)?.name || id,
+                  image: null,
+                  current_price: prices[id].usd,
+                  market_cap: prices[id].usd_market_cap,
+                  market_cap_rank: null,
+                  total_volume: null,
+                  price_change_percentage_24h: prices[id].usd_24h_change,
+                  price_change_percentage_7d_in_currency: null,
+                  circulating_supply: null,
+                  total_supply: null,
+                  ath: null,
+                  ath_change_percentage: null,
+                  sparkline_in_7d: null,
+                } as CoinMarket);
+              }
+            }
+          } catch { /* fallback: show without price data */ }
+        }
+
         setMarketData(map);
       }
     } catch (err) {

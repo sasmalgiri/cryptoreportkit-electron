@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "concurrently \"npm run dev:renderer\" \"wait-on http://localhost:1420 && npm run dev:electron\"",
     "dev:renderer": "vite --port 1420",
-    "dev:electron": "electron .",
+    "dev:electron": "node -e \"delete process.env.ELECTRON_RUN_AS_NODE; require('child_process').spawn(require('electron'), ['.'], {stdio:'inherit'}).on('close',process.exit)\"",
     "build": "vite build && npm run build:electron",
     "build:electron": "electron-builder --win --x64",
     "build:mac": "vite build && electron-builder --mac",

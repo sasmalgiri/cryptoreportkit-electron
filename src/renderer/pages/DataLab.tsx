@@ -107,8 +107,10 @@ export default function DataLab() {
   const smaData = showSma && dataType === 'Price' ? sma(firstPrices, 20) : [];
   const bbData = showBollinger && dataType === 'Price' ? bollingerBands(firstPrices) : null;
 
+  const firstSeriesLen = allSeries[0]?.length ?? 0;
+  const toXOverlay = (i: number) => PAD.left + (i / Math.max(firstSeriesLen - 1, 1)) * plotW;
   const buildOverlayPath = (vals: (number | null)[]) =>
-    vals.map((v, i) => v !== null ? `${i === 0 || vals[i - 1] === null ? 'M' : 'L'}${toX(i).toFixed(1)},${toY(v).toFixed(1)}` : '').filter(Boolean).join(' ');
+    vals.map((v, i) => v !== null ? `${i === 0 || vals[i - 1] === null ? 'M' : 'L'}${toXOverlay(i).toFixed(1)},${toY(v).toFixed(1)}` : '').filter(Boolean).join(' ');
 
   // Table data
   const tableRows: { date: string; values: { price: number; volume: number; change: number | null }[] }[] = [];

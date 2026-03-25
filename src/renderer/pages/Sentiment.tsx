@@ -116,8 +116,8 @@ export default function Sentiment() {
               <span className="text-red-400">{losers.length} Losers</span>
             </div>
             <div className="flex h-3 rounded-full overflow-hidden">
-              <div className="bg-emerald-500" style={{ width: `${(gainers.length / markets.length) * 100}%` }} />
-              <div className="bg-red-500" style={{ width: `${(losers.length / markets.length) * 100}%` }} />
+              <div className="bg-emerald-500" style={{ width: `${markets.length > 0 ? (gainers.length / markets.length) * 100 : 0}%` }} />
+              <div className="bg-red-500" style={{ width: `${markets.length > 0 ? (losers.length / markets.length) * 100 : 0}%` }} />
             </div>
           </div>
 

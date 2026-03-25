@@ -36,6 +36,8 @@ export function SearchBar({ onSelect, placeholder = 'Search coins...' }: SearchB
       }
       setLoading(false);
     }, 300);
+
+    return () => clearTimeout(debounceRef.current);
   }, [query]);
 
   // Close on click outside

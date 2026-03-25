@@ -137,10 +137,8 @@ async function updateTrayPrices() {
       if (row?.value) coinIds = row.value;
     }
 
-    const res = await fetch(
-      `https://api.coingecko.com/api/v3/simple/price?ids=${coinIds}&vs_currencies=usd&include_24hr_change=true`
-    );
-    const data = await res.json();
+    const { fetchCoinGecko } = require('./coingecko');
+    const data = await fetchCoinGecko(`/simple/price?ids=${coinIds}&vs_currencies=usd&include_24hr_change=true`);
     const parts = [];
     for (const id of coinIds.split(',')) {
       const coin = data[id.trim()];
@@ -165,10 +163,8 @@ async function checkPriceAlerts() {
     if (alerts.length === 0) return;
 
     const coinIds = [...new Set(alerts.map((a) => a.coin_id))].join(',');
-    const res = await fetch(
-      `https://api.coingecko.com/api/v3/simple/price?ids=${coinIds}&vs_currencies=usd`
-    );
-    const prices = await res.json();
+    const { fetchCoinGecko } = require('./coingecko');
+    const prices = await fetchCoinGecko(`/simple/price?ids=${coinIds}&vs_currencies=usd`);
 
     for (const alert of alerts) {
       const currentPrice = prices[alert.coin_id]?.usd;

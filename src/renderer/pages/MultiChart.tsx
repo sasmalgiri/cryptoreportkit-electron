@@ -28,15 +28,15 @@ export default function MultiChart() {
   }, []);
 
   useEffect(() => {
-    const active = selections.slice(0, layout.count);
+    const active = selections.slice(0, layout.count).filter(Boolean);
+    if (active.length === 0) return;
     (async () => {
+      const results = await Promise.allSettled(
+        active.map(id => getCoinMarketChart(id, 'usd', days).then(chart => ({ id, prices: chart.prices })))
+      );
       const data: Record<string, [number, number][]> = {};
-      for (const id of active) {
-        if (!id) continue;
-        try {
-          const chart = await getCoinMarketChart(id, 'usd', days);
-          data[id] = chart.prices;
-        } catch { /* */ }
+      for (const r of results) {
+        if (r.status === 'fulfilled') data[r.value.id] = r.value.prices;
       }
       setChartData(data);
     })();
@@ -103,7 +103,7 @@ export default function MultiChart() {
               </div>
 
               {/* Mini Chart */}
-              <MiniChart prices={prices} positive={change >= 0} />
+              <MiniChart prices={prices} positive={change >= 0} coinId={coinId} />
 
               <div className="mt-2 flex justify-between items-baseline">
                 <span className="text-lg font-bold">${formatNumber(coin?.current_price ?? 0)}</span>
@@ -117,7 +117,7 @@ export default function MultiChart() {
   );
 }
 
-function MiniChart({ prices, positive }: { prices: [number, number][]; positive: boolean }) {
+function MiniChart({ prices, positive, coinId }: { prices: [number, number][]; positive: boolean; coinId: string }) {
   if (prices.length < 2) return <div className="h-24 flex items-center justify-center text-gray-600 text-xs">Loading chart...</div>;
 
   const vals = prices.map(p => p[1]);
@@ -133,12 +133,12 @@ function MiniChart({ prices, positive }: { prices: [number, number][]; positive:
   return (
     <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-24">
       <defs>
-        <linearGradient id={`grad-${positive}`} x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id={`grad-${coinId}-${positive}`} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor={color} stopOpacity="0.3" />
           <stop offset="100%" stopColor={color} stopOpacity="0" />
         </linearGradient>
       </defs>
-      <path d={fillPath} fill={`url(#grad-${positive})`} />
+      <path d={fillPath} fill={`url(#grad-${coinId}-${positive})`} />
       <polyline points={path} fill="none" stroke={color} strokeWidth="1.5" />
     </svg>
   );

@@ -141,9 +141,11 @@ export default function Orderbook() {
                 <tr key={i} className="relative">
                   <td className="px-3 py-1 text-emerald-400">${formatNumber(b.price)}</td>
                   <td className="px-3 py-1 text-right">{b.amount.toFixed(4)}</td>
-                  <td className="px-3 py-1 text-right">{b.total.toFixed(4)}</td>
-                  <td className="absolute inset-0 pointer-events-none">
-                    <div className="h-full bg-emerald-500/5" style={{ width: `${(b.total / maxTotal) * 100}%` }} />
+                  <td className="px-3 py-1 text-right relative">
+                    <div className="absolute inset-0 pointer-events-none">
+                      <div className="h-full bg-emerald-500/5" style={{ width: `${(b.total / maxTotal) * 100}%` }} />
+                    </div>
+                    <span className="relative">{b.total.toFixed(4)}</span>
                   </td>
                 </tr>
               ))}
@@ -165,9 +167,11 @@ export default function Orderbook() {
                 <tr key={i} className="relative">
                   <td className="px-3 py-1 text-red-400">${formatNumber(a.price)}</td>
                   <td className="px-3 py-1 text-right">{a.amount.toFixed(4)}</td>
-                  <td className="px-3 py-1 text-right">{a.total.toFixed(4)}</td>
-                  <td className="absolute inset-0 pointer-events-none">
-                    <div className="h-full bg-red-500/5 ml-auto" style={{ width: `${(a.total / maxTotal) * 100}%` }} />
+                  <td className="px-3 py-1 text-right relative">
+                    <div className="absolute inset-0 pointer-events-none">
+                      <div className="h-full bg-red-500/5 ml-auto" style={{ width: `${(a.total / maxTotal) * 100}%` }} />
+                    </div>
+                    <span className="relative">{a.total.toFixed(4)}</span>
                   </td>
                 </tr>
               ))}

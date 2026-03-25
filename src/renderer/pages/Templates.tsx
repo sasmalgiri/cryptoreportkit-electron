@@ -249,9 +249,22 @@ function DominanceContent() {
   const arcX = (a: number) => cx + R * Math.cos(rad(a));
   const arcY = (a: number) => cy + R * Math.sin(rad(a));
   const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#6b7280', '#14b8a6', '#f97316', '#84cc16'];
-  // Pie chart
-  let cumAngle = 0;
   const pieR = 55;
+  // Pre-compute pie slices to avoid mutable cumAngle in render
+  const pieSlices = (() => {
+    let cum = 0;
+    return shares.slice(0, 8).map((s, i) => {
+      const sliceAngle = (s.pct / 100) * 360;
+      const startRad = (cum * Math.PI) / 180;
+      const endRad = ((cum + sliceAngle) * Math.PI) / 180;
+      const x1 = 90 + pieR * Math.cos(startRad), y1 = 70 + pieR * Math.sin(startRad);
+      const x2 = 90 + pieR * Math.cos(endRad), y2 = 70 + pieR * Math.sin(endRad);
+      const large = sliceAngle > 180 ? 1 : 0;
+      const path = `M90,70 L${x1},${y1} A${pieR},${pieR} 0 ${large},1 ${x2},${y2} Z`;
+      cum += sliceAngle;
+      return { path, color: COLORS[i % COLORS.length] };
+    });
+  })();
   return (
     <div className="flex gap-4 items-start">
       <div>
@@ -264,17 +277,9 @@ function DominanceContent() {
       </div>
       <div className="flex-1">
         <svg viewBox="0 0 180 140" className="w-full">
-          {shares.slice(0, 8).map((s, i) => {
-            const sliceAngle = (s.pct / 100) * 360;
-            const startRad = (cumAngle * Math.PI) / 180;
-            const endRad = ((cumAngle + sliceAngle) * Math.PI) / 180;
-            const x1 = 90 + pieR * Math.cos(startRad), y1 = 70 + pieR * Math.sin(startRad);
-            const x2 = 90 + pieR * Math.cos(endRad), y2 = 70 + pieR * Math.sin(endRad);
-            const large = sliceAngle > 180 ? 1 : 0;
-            const path = `M90,70 L${x1},${y1} A${pieR},${pieR} 0 ${large},1 ${x2},${y2} Z`;
-            cumAngle += sliceAngle;
-            return <path key={i} d={path} fill={COLORS[i % COLORS.length]} opacity={0.8} />;
-          })}
+          {pieSlices.map((slice, i) => (
+            <path key={i} d={slice.path} fill={slice.color} opacity={0.8} />
+          ))}
         </svg>
         <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1">
           {shares.slice(0, 8).map((s, i) => (

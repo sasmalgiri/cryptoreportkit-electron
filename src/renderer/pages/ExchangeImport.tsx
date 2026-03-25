@@ -97,7 +97,8 @@ export default function ExchangeImport() {
         <div>
           <p className="text-emerald-400 font-medium text-sm">Read-Only API Keys Only</p>
           <p className="text-gray-400 text-xs mt-1">
-            Keys are used once to fetch transactions, then discarded. Never enable withdrawal permissions.
+            Keys are sent to the CryptoReportKit server to fetch transactions, then discarded. Never enable withdrawal permissions.
+            For maximum security, use API keys with read-only trade history permissions.
           </p>
         </div>
       </div>

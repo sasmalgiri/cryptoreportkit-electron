@@ -225,11 +225,10 @@ export default function Screener() {
             className="bg-gray-900/60 border border-gray-700/50 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500/50"
           >
             <option value={0}>Max Cap: Any</option>
-            {MCAP_OPTIONS.slice(1).map((o) => (
-              <option key={`max-${o.value}`} value={o.value}>
-                Max Cap: {o.label}
-              </option>
-            ))}
+            <option value={1e6}>Max Cap: &lt; $1M</option>
+            <option value={1e7}>Max Cap: &lt; $10M</option>
+            <option value={1e8}>Max Cap: &lt; $100M</option>
+            <option value={1e9}>Max Cap: &lt; $1B</option>
           </select>
 
           {/* 24h Change */}

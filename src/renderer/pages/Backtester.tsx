@@ -29,8 +29,10 @@ interface BacktestResult {
   numTrades: number;
 }
 
-function runBacktest(prices: [number, number][], strategy: string, investment: number): BacktestResult {
+function runBacktest(prices: [number, number][], strategy: string, investment: number): BacktestResult | null {
+  if (prices.length === 0) return null;
   const closes = prices.map(p => p[1]);
+  if (closes[0] === 0) return null;
   const dates = prices.map(p => new Date(p[0]).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' }));
 
   // Buy & Hold baseline
@@ -82,7 +84,8 @@ function runBacktest(prices: [number, number][], strategy: string, investment: n
     const interval = 7; // buy every 7 data points
     let cash = investment;
     let holding = 0;
-    const buyAmount = investment / Math.floor(closes.length / interval + 1);
+    const numBuys = Math.floor((closes.length - 1) / interval) + 1;
+    const buyAmount = investment / numBuys;
     closes.forEach((c, i) => {
       if (i % interval === 0 && cash >= buyAmount) {
         const amt = buyAmount / c;
@@ -273,7 +276,7 @@ export default function Backtester() {
             {[
               { label: 'Final Value', value: `$${formatNumber(result.finalValue)}`, icon: <BarChart3 className="w-3.5 h-3.5" /> },
               { label: 'Total Return', value: formatPercent(result.totalReturn), icon: result.totalReturn >= 0 ? <TrendingUp className="w-3.5 h-3.5 text-green-400" /> : <TrendingDown className="w-3.5 h-3.5 text-red-400" />, color: result.totalReturn >= 0 ? 'text-green-400' : 'text-red-400' },
-              { label: 'Max Drawdown', value: formatPercent(-result.maxDd * 100), icon: <TrendingDown className="w-3.5 h-3.5 text-red-400" />, color: 'text-red-400' },
+              { label: 'Max Drawdown', value: `${(-result.maxDd * 100).toFixed(2)}%`, icon: <TrendingDown className="w-3.5 h-3.5 text-red-400" />, color: 'text-red-400' },
               { label: 'Sharpe Ratio', value: result.sharpe.toFixed(2), icon: <BarChart3 className="w-3.5 h-3.5" /> },
               { label: 'Trades', value: String(result.numTrades), icon: <BarChart3 className="w-3.5 h-3.5" /> },
             ].map(kpi => (

@@ -98,13 +98,11 @@ function registerDatabaseHandlers() {
       return { entries: [], total_invested: 0, current_value: 0, total_pnl: 0, total_pnl_percentage: 0 };
     }
 
-    // Fetch current prices
+    // Fetch current prices using shared CoinGecko fetcher (respects rate limits + API key)
+    const { fetchCoinGecko } = require('./coingecko');
     const coinIds = [...new Set(entries.map((e) => e.coin_id))].join(',');
     try {
-      const res = await fetch(
-        `https://api.coingecko.com/api/v3/simple/price?ids=${coinIds}&vs_currencies=usd`
-      );
-      const prices = await res.json();
+      const prices = await fetchCoinGecko(`/simple/price?ids=${coinIds}&vs_currencies=usd`);
 
       let totalValue = 0;
       let totalCost = 0;

@@ -5,13 +5,14 @@ export function TitleBar() {
   const [isMaximized, setIsMaximized] = useState(false);
 
   useEffect(() => {
-    window.electronAPI?.onMaximizedChanged((val: boolean) => setIsMaximized(val));
+    const cleanup = window.electronAPI?.onMaximizedChanged((val: boolean) => setIsMaximized(val));
     window.electronAPI?.isMaximized().then(setIsMaximized);
+    return () => cleanup?.();
   }, []);
 
-  const handleMinimize = () => window.electronAPI.minimize();
-  const handleToggleMaximize = () => window.electronAPI.maximize();
-  const handleClose = () => window.electronAPI.close();
+  const handleMinimize = () => window.electronAPI?.minimize();
+  const handleToggleMaximize = () => window.electronAPI?.maximize();
+  const handleClose = () => window.electronAPI?.close();
 
   return (
     <div

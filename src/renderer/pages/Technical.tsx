@@ -11,6 +11,7 @@ export default function Technical() {
   const [selected, setSelected] = useState('bitcoin');
   const [ohlc, setOhlc] = useState<OhlcvData>([]);
   const [loading, setLoading] = useState(true);
+  const [ohlcLoading, setOhlcLoading] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -21,10 +22,12 @@ export default function Technical() {
 
   useEffect(() => {
     (async () => {
+      setOhlcLoading(true);
       try {
         const data = await getOhlc(selected, 'usd', 90);
         setOhlc(data);
       } catch { setOhlc([]); }
+      setOhlcLoading(false);
     })();
   }, [selected]);
 
@@ -33,6 +36,7 @@ export default function Technical() {
   const closes = ohlc.map(c => c[4]);
   const highs = ohlc.map(c => c[2]);
   const lows = ohlc.map(c => c[3]);
+  const hasData = closes.length > 0;
 
   const rsiVals = rsi(closes);
   const macdData = macd(closes);
@@ -98,6 +102,15 @@ export default function Technical() {
         </div>
       </div>
 
+      {ohlcLoading && <div className="text-center py-4 text-gray-500">Loading technical data...</div>}
+
+      {!ohlcLoading && !hasData && (
+        <div className="text-center py-8 text-gray-500 bg-gray-800/30 rounded-xl border border-gray-700/50">
+          No OHLC data available for this coin. Try selecting a different one.
+        </div>
+      )}
+
+      {!ohlcLoading && hasData && <>
       {/* Overall Signal */}
       <div className={`text-center py-4 rounded-xl border ${overall === 'BUY' ? 'bg-emerald-500/10 border-emerald-500/20' : overall === 'SELL' ? 'bg-red-500/10 border-red-500/20' : 'bg-gray-700/30 border-gray-700/50'}`}>
         <div className="text-sm text-gray-400">Overall Signal</div>
@@ -183,10 +196,11 @@ export default function Technical() {
           </div>
           <div className="text-2xl font-bold">${formatNumber(lastAtr)}</div>
           <div className="text-xs text-gray-500 mt-1">
-            {lastAtr / lastPrice > 0.03 ? 'High volatility' : lastAtr / lastPrice > 0.015 ? 'Moderate volatility' : 'Low volatility'}
+            {lastPrice > 0 ? (lastAtr / lastPrice > 0.03 ? 'High volatility' : lastAtr / lastPrice > 0.015 ? 'Moderate volatility' : 'Low volatility') : '-'}
           </div>
         </div>
       </div>
+      </>}
     </div>
   );
 }

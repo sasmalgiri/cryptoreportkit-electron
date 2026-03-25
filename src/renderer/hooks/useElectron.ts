@@ -25,8 +25,8 @@ declare global {
       maximize: () => void;
       close: () => void;
       isMaximized: () => Promise<boolean>;
-      onMaximizedChanged: (cb: (val: boolean) => void) => void;
-      onNavigate: (cb: (route: string) => void) => void;
+      onMaximizedChanged: (cb: (val: boolean) => void) => (() => void) | void;
+      onNavigate: (cb: (route: string) => void) => (() => void) | void;
       getMarkets: (params?: any) => Promise<any>;
       getCoinDetail: (id: string) => Promise<any>;
       getOhlc: (id: string, days?: number) => Promise<any>;
@@ -48,7 +48,7 @@ declare global {
       getPriceAlerts: () => Promise<any[]>;
       deletePriceAlert: (id: string) => Promise<any>;
       togglePriceAlert: (id: string) => Promise<any>;
-      onAlertTriggered: (cb: (alertId: string) => void) => void;
+      onAlertTriggered: (cb: (alertId: string) => void) => (() => void) | void;
       getSettings: () => Promise<any>;
       updateSettings: (key: string, value: any) => Promise<any>;
       setApiKey: (key: string) => Promise<any>;

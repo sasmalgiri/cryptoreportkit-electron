@@ -44,9 +44,14 @@ export default function DefiPositions() {
   const [searched, setSearched] = useState(false);
 
   const toggleChain = (chain: string) => {
-    setSelectedChains((prev) =>
-      prev.includes(chain) ? prev.filter((c) => c !== chain) : [...prev, chain],
-    );
+    setSelectedChains((prev) => {
+      if (prev.includes(chain)) {
+        // Prevent deselecting all chains
+        if (prev.length <= 1) return prev;
+        return prev.filter((c) => c !== chain);
+      }
+      return [...prev, chain];
+    });
   };
 
   const handleSearch = async () => {

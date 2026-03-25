@@ -18,8 +18,12 @@ const LEVEL_KEY = 'crk-user-level';
 export function BeginnerDashboard({ onShowFullDashboard }: { onShowFullDashboard: () => void }) {
   const navigate = useNavigate();
   const [checklist, setChecklist] = useState(() => {
-    const saved = localStorage.getItem('crk-beginner-checklist');
-    return saved ? JSON.parse(saved) : { learn: false, glossary: false, dashboard: false, askAi: false };
+    try {
+      const saved = localStorage.getItem('crk-beginner-checklist');
+      return saved ? JSON.parse(saved) : { learn: false, glossary: false, dashboard: false, askAi: false };
+    } catch {
+      return { learn: false, glossary: false, dashboard: false, askAi: false };
+    }
   });
 
   function toggleCheck(key: string) {

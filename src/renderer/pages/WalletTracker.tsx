@@ -153,7 +153,7 @@ export default function WalletTracker() {
           </div>
 
           {results.map((result) => {
-            const chain = CHAINS.find((c) => c.name === result.chain) || CHAINS[0];
+            const chain = CHAINS.find((c) => c.id === result.chain || c.name === result.chain) || CHAINS[0];
             return (
               <div key={result.chain} className="bg-gray-800/50 border border-gray-700/50 rounded-xl overflow-hidden">
                 <div className="px-4 py-3 border-b border-gray-700/50 flex items-center justify-between">

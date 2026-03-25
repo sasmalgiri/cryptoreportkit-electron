@@ -29,7 +29,7 @@ export default function DeFi() {
   const totalMcap = allMarkets.reduce((s, c) => s + (c.market_cap ?? 0), 0);
   const defiPct = totalMcap > 0 ? (totalDefiMcap / totalMcap) * 100 : 0;
   const avgChange = defiCoins.length > 0 ? defiCoins.reduce((s, c) => s + (c.price_change_percentage_24h ?? 0), 0) / defiCoins.length : 0;
-  const topDefi = defiCoins.sort((a, b) => (b.market_cap ?? 0) - (a.market_cap ?? 0))[0];
+  const topDefi = [...defiCoins].sort((a, b) => (b.market_cap ?? 0) - (a.market_cap ?? 0))[0];
 
   const sorted = [...defiCoins].sort((a, b) => {
     const av = a[sortBy] ?? 0, bv = b[sortBy] ?? 0;

@@ -17,6 +17,7 @@ import {
   validateLicense,
   getLicenseStatus,
 } from '../hooks/useElectron';
+import { useAppStore } from '../stores/appStore';
 import type { AppSettings, LicenseStatus } from '../types';
 
 export default function Settings() {
@@ -94,10 +95,15 @@ export default function Settings() {
     setSaving(false);
   };
 
+  const setCurrency = useAppStore((s) => s.setCurrency);
+
   const handleUpdateSettings = async (updates: Partial<AppSettings>) => {
     await updateSettings(updates);
     if (settings) {
       setSettings({ ...settings, ...updates });
+    }
+    if (updates.currency) {
+      setCurrency(updates.currency);
     }
     setMessage({ type: 'success', text: 'Settings saved' });
   };

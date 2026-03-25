@@ -217,4 +217,9 @@ function registerCoinGeckoHandlers() {
   });
 }
 
-module.exports = { registerCoinGeckoHandlers, invalidateApiKeyCache };
+async function fetchCoinGecko(urlPath) {
+  const apiKey = await getApiKey();
+  return rateLimitedFetch(urlPath, apiKey);
+}
+
+module.exports = { registerCoinGeckoHandlers, invalidateApiKeyCache, fetchCoinGecko };

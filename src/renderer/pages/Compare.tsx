@@ -18,6 +18,17 @@ export default function Compare() {
   const [showSearch, setShowSearch] = useState(false);
   const [loading, setLoading] = useState(true);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
+        setShowSearch(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -29,12 +40,12 @@ export default function Compare() {
   useEffect(() => {
     if (selected.length === 0) return;
     (async () => {
+      const results = await Promise.allSettled(
+        selected.map(c => getCoinMarketChart(c.id, 'usd', days).then(chart => ({ id: c.id, prices: chart.prices })))
+      );
       const data: Record<string, [number, number][]> = {};
-      for (const c of selected) {
-        try {
-          const chart = await getCoinMarketChart(c.id, 'usd', days);
-          data[c.id] = chart.prices;
-        } catch { /* */ }
+      for (const r of results) {
+        if (r.status === 'fulfilled') data[r.value.id] = r.value.prices;
       }
       setChartData(data);
     })();
@@ -104,7 +115,7 @@ export default function Compare() {
           </span>
         ))}
         {selected.length < 5 && (
-          <div className="relative">
+          <div className="relative" ref={searchContainerRef}>
             <div className="flex items-center bg-gray-800 border border-gray-700 rounded-full px-3 py-1.5">
               <Search className="w-3.5 h-3.5 text-gray-500 mr-1.5" />
               <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Add coin..." className="bg-transparent text-sm focus:outline-none w-24" />

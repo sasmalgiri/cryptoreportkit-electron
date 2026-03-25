@@ -36,10 +36,11 @@ export default function Alerts() {
 
   // Auto-refresh when background alert triggers
   useEffect(() => {
-    window.electronAPI?.onAlertTriggered(() => {
+    const cleanup = window.electronAPI?.onAlertTriggered(() => {
       load();
       toast('info', 'A price alert was triggered!');
     });
+    return () => cleanup?.();
   }, []);
 
   useEffect(() => {

@@ -174,7 +174,7 @@ export default function Correlation() {
           </div>
           <button
             onClick={handleExport}
-            disabled={matrix.length === 0}
+            disabled={matrix.length === 0 || loading}
             className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 text-white text-sm px-4 py-2 rounded-lg transition-colors"
           >
             <Download className="w-4 h-4" />
@@ -369,8 +369,8 @@ export default function Correlation() {
               {hoverCell && (
                 <div className="mt-3 bg-gray-900/60 border border-gray-700/50 rounded-lg px-4 py-2 text-sm inline-flex items-center gap-2">
                   <span className="text-gray-400">
-                    {coinMap[selected[hoverCell.i]]?.symbol.toUpperCase()} vs{' '}
-                    {coinMap[selected[hoverCell.j]]?.symbol.toUpperCase()}:
+                    {coinMap[selected[hoverCell.i]]?.symbol?.toUpperCase()} vs{' '}
+                    {coinMap[selected[hoverCell.j]]?.symbol?.toUpperCase()}:
                   </span>
                   <span
                     className="font-mono font-bold"

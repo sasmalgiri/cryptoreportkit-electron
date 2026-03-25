@@ -1,7 +1,7 @@
 import { Heart, Github, Globe } from 'lucide-react';
 
 export default function About() {
-  const openLink = (url: string) => window.electronAPI.openExternal(url);
+  const openLink = (url: string) => window.electronAPI?.openExternal(url);
 
   return (
     <div className="max-w-2xl mx-auto space-y-8 py-8">

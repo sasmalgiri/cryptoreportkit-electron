@@ -7,12 +7,16 @@ contextBridge.exposeInMainWorld('electronAPI', {
   close: () => ipcRenderer.send('window:close'),
   isMaximized: () => ipcRenderer.invoke('window:isMaximized'),
   onMaximizedChanged: (callback) => {
-    ipcRenderer.on('window:maximized-changed', (_event, value) => callback(value));
+    const handler = (_event, value) => callback(value);
+    ipcRenderer.on('window:maximized-changed', handler);
+    return () => ipcRenderer.removeListener('window:maximized-changed', handler);
   },
 
   // Navigation from tray
   onNavigate: (callback) => {
-    ipcRenderer.on('navigate', (_event, route) => callback(route));
+    const handler = (_event, route) => callback(route);
+    ipcRenderer.on('navigate', handler);
+    return () => ipcRenderer.removeListener('navigate', handler);
   },
 
   // CoinGecko
@@ -44,7 +48,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   deletePriceAlert: (id) => ipcRenderer.invoke('db:deletePriceAlert', id),
   togglePriceAlert: (id) => ipcRenderer.invoke('db:togglePriceAlert', id),
   onAlertTriggered: (callback) => {
-    ipcRenderer.on('alert:triggered', (_event, alertId) => callback(alertId));
+    const handler = (_event, alertId) => callback(alertId);
+    ipcRenderer.on('alert:triggered', handler);
+    return () => ipcRenderer.removeListener('alert:triggered', handler);
   },
 
   // Settings

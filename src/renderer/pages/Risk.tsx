@@ -33,11 +33,12 @@ function rollingStdDev(returns: number[], window: number): number[] {
 }
 
 function drawdownSeries(prices: number[]): number[] {
+  if (prices.length === 0) return [];
   const dd: number[] = [];
   let peak = prices[0];
   for (const p of prices) {
     if (p > peak) peak = p;
-    dd.push((p - peak) / peak); // negative values
+    dd.push(peak > 0 ? (p - peak) / peak : 0); // negative values
   }
   return dd;
 }
@@ -141,7 +142,7 @@ export default function Risk() {
       ['Value at Risk (95%)', `${(var95 * 100).toFixed(2)}%`],
       ['Days Analyzed', String(prices.length)],
       ['Daily Returns Count', String(returns.length)],
-      ['Avg Daily Return', `${((returns.reduce((a, b) => a + b, 0) / returns.length) * 100).toFixed(4)}%`],
+      ['Avg Daily Return', `${(returns.length > 0 ? (returns.reduce((a, b) => a + b, 0) / returns.length) * 100 : 0).toFixed(4)}%`],
     ];
     downloadCsv(`risk_${selectedCoin}.csv`, headers, rows);
   }
