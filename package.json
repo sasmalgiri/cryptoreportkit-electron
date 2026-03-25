@@ -25,8 +25,12 @@
     },
     "files": [
       "dist/**/*",
-      "src/main/**/*",
-      "!node_modules/**/*"
+      "src/main/**/*"
+    ],
+    "asar": true,
+    "asarUnpack": [
+      "node_modules/better-sqlite3/**/*",
+      "node_modules/keytar/**/*"
     ],
     "win": {
       "target": [
