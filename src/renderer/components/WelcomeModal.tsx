@@ -18,14 +18,20 @@ export function WelcomeModal() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!localStorage.getItem(STORAGE_KEY)) {
+    try {
+      if (!localStorage.getItem(STORAGE_KEY)) {
+        setOpen(true);
+      }
+    } catch {
       setOpen(true);
     }
   }, []);
 
   function dismiss() {
-    localStorage.setItem(STORAGE_KEY, '1');
-    if (level) localStorage.setItem(LEVEL_KEY, level);
+    try {
+      localStorage.setItem(STORAGE_KEY, '1');
+      if (level) localStorage.setItem(LEVEL_KEY, level);
+    } catch { /* silently fail — user will see modal again next time */ }
     setOpen(false);
   }
 

@@ -78,13 +78,15 @@ export default function Correlation() {
       })),
     );
 
-    Promise.all(fetches)
+    Promise.allSettled(fetches)
       .then((results) => {
         const map: Record<string, number[]> = {};
-        for (const r of results) map[r.id] = r.prices;
+        for (const r of results) {
+          if (r.status === 'fulfilled') map[r.value.id] = r.value.prices;
+        }
+        if (Object.keys(map).length === 0) setError('Failed to fetch price data');
         setPriceData(map);
       })
-      .catch((e) => setError(String(e)))
       .finally(() => setCalculating(false));
   }, [selected, period]);
 

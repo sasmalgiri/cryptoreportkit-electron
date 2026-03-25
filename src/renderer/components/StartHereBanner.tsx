@@ -17,36 +17,38 @@ export function StartHereBanner() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Don't show if already permanently dismissed
-    if (localStorage.getItem(BANNER_DISMISSED_KEY)) return;
+    try {
+      // Don't show if already permanently dismissed
+      if (localStorage.getItem(BANNER_DISMISSED_KEY)) return;
 
-    // Don't show for experienced users
-    const level = localStorage.getItem(LEVEL_KEY);
-    if (level === 'pro') return;
+      // Don't show for experienced users
+      const level = localStorage.getItem(LEVEL_KEY);
+      if (level === 'pro') return;
 
-    // Track first visit timestamp
-    let firstVisit = localStorage.getItem(FIRST_VISIT_KEY);
-    if (!firstVisit) {
-      firstVisit = Date.now().toString();
-      localStorage.setItem(FIRST_VISIT_KEY, firstVisit);
-    }
+      // Track first visit timestamp
+      let firstVisit = localStorage.getItem(FIRST_VISIT_KEY);
+      if (!firstVisit) {
+        firstVisit = Date.now().toString();
+        localStorage.setItem(FIRST_VISIT_KEY, firstVisit);
+      }
 
-    // Only show within first 7 days
-    const elapsed = Date.now() - parseInt(firstVisit);
-    if (elapsed > SEVEN_DAYS) return;
+      // Only show within first 7 days
+      const elapsed = Date.now() - parseInt(firstVisit);
+      if (elapsed > SEVEN_DAYS) return;
 
-    setVisible(true);
+      setVisible(true);
+    } catch { /* localStorage unavailable */ }
   }, []);
 
   function dismiss() {
-    localStorage.setItem(BANNER_DISMISSED_KEY, '1');
+    try { localStorage.setItem(BANNER_DISMISSED_KEY, '1'); } catch { /* */ }
     setVisible(false);
   }
 
   if (!visible) return null;
 
-  const level = localStorage.getItem(LEVEL_KEY);
-  const isNew = level === 'new';
+  let isNew = false;
+  try { isNew = localStorage.getItem(LEVEL_KEY) === 'new'; } catch { /* */ }
 
   return (
     <div className="bg-gradient-to-r from-emerald-500/10 to-blue-500/10 border border-emerald-500/20 rounded-xl p-4 mb-6">

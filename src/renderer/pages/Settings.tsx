@@ -31,20 +31,24 @@ export default function Settings() {
 
   useEffect(() => {
     async function load() {
-      const [hasKey, settingsData, license] = await Promise.all([
-        hasApiKey(),
-        getSettings(),
-        getLicenseStatus(),
-      ]);
-      setApiKeyStored(hasKey);
-      setSettings(settingsData);
-      setLicenseStatus(license);
+      try {
+        const [hasKey, settingsData, license] = await Promise.all([
+          hasApiKey(),
+          getSettings(),
+          getLicenseStatus(),
+        ]);
+        setApiKeyStored(hasKey);
+        setSettings(settingsData);
+        setLicenseStatus(license);
 
-      if (hasKey) {
-        const key = await getApiKey();
-        if (key) {
-          setApiKeyInput(key.slice(0, 6) + '...' + key.slice(-4));
+        if (hasKey) {
+          const key = await getApiKey();
+          if (key) {
+            setApiKeyInput(key.slice(0, 6) + '...' + key.slice(-4));
+          }
         }
+      } catch (err) {
+        setMessage({ type: 'error', text: 'Failed to load settings' });
       }
     }
     load();
@@ -98,14 +102,18 @@ export default function Settings() {
   const setCurrency = useAppStore((s) => s.setCurrency);
 
   const handleUpdateSettings = async (updates: Partial<AppSettings>) => {
-    await updateSettings(updates);
-    if (settings) {
-      setSettings({ ...settings, ...updates });
+    try {
+      await updateSettings(updates);
+      if (settings) {
+        setSettings({ ...settings, ...updates });
+      }
+      if (updates.currency) {
+        setCurrency(updates.currency);
+      }
+      setMessage({ type: 'success', text: 'Settings saved' });
+    } catch {
+      setMessage({ type: 'error', text: 'Failed to save settings' });
     }
-    if (updates.currency) {
-      setCurrency(updates.currency);
-    }
-    setMessage({ type: 'success', text: 'Settings saved' });
   };
 
   return (

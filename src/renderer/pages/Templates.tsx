@@ -95,7 +95,7 @@ function FearGreedContent() {
   const [loading, setLoading] = useState(true);
   useEffect(() => { getFearGreed().then(r => setData(r.data.slice(0, 30))).catch(() => {}).finally(() => setLoading(false)); }, []);
   if (loading) return <LoadingSpinner />;
-  if (data.length === 0) return <div className="text-gray-500 text-sm">No data available</div>;
+  if (data.length < 2) return <div className="text-gray-500 text-sm">No data available</div>;
   const values = data.map(d => parseInt(d.value)).reverse();
   const W = 400, H = 120;
   const max = 100, min = 0;
@@ -140,14 +140,18 @@ function BtcVsEthContent() {
   const [eth, setEth] = useState<[number, number][]>([]);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
-    Promise.all([getCoinMarketChart('bitcoin', 'usd', 30), getCoinMarketChart('ethereum', 'usd', 30)])
-      .then(([b, e]) => { setBtc(b.prices); setEth(e.prices); })
-      .catch(() => {}).finally(() => setLoading(false));
+    Promise.allSettled([getCoinMarketChart('bitcoin', 'usd', 30), getCoinMarketChart('ethereum', 'usd', 30)])
+      .then(([b, e]) => {
+        if (b.status === 'fulfilled') setBtc(b.value.prices);
+        if (e.status === 'fulfilled') setEth(e.value.prices);
+      })
+      .finally(() => setLoading(false));
   }, []);
   if (loading) return <LoadingSpinner />;
   // Normalize to percentage change from start
-  const norm = (arr: [number, number][]) => { const base = arr[0]?.[1] ?? 1; return arr.map(p => ((p[1] - base) / base) * 100); };
+  const norm = (arr: [number, number][]) => { const base = arr[0]?.[1] || 1; return arr.map(p => ((p[1] - base) / base) * 100); };
   const btcN = norm(btc), ethN = norm(eth);
+  if (btcN.length < 2 || ethN.length < 2) return <div className="text-gray-500 text-sm">Insufficient data</div>;
   const allV = [...btcN, ...ethN];
   const min = Math.min(...allV), max = Math.max(...allV), range = max - min || 1;
   const W = 400, H = 140;

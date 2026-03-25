@@ -144,7 +144,7 @@ export default function AdvancedCharts() {
     if (timestamps.length < 2) return PAD.left;
     return PAD.left + ((ts - timestamps[0]) / (timestamps[timestamps.length - 1] - timestamps[0])) * cw;
   };
-  const yScale = (v: number) => PAD.top + ch - ((v - minP) / (maxP - minP)) * ch;
+  const yScale = (v: number) => PAD.top + ch - ((v - minP) / (maxP - minP || 1)) * ch;
 
   /* Y axis ticks */
   const yTicks = Array.from({ length: 5 }, (_, i) => minP + ((maxP - minP) * i) / 4);

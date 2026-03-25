@@ -68,9 +68,13 @@ export default function DataLab() {
     let cancelled = false;
     setLoading(true);
     setError(null);
-    Promise.all(coins.map(c => getCoinMarketChart(c.id, 'usd', timeframe).then(d => ({ coinId: c.id, data: d }))))
-      .then(results => { if (!cancelled) setChartData(results); })
-      .catch(e => { if (!cancelled) setError(String(e)); })
+    Promise.allSettled(coins.map(c => getCoinMarketChart(c.id, 'usd', timeframe).then(d => ({ coinId: c.id, data: d }))))
+      .then(results => {
+        if (cancelled) return;
+        const fulfilled = results.filter((r): r is PromiseFulfilledResult<ChartDataSet> => r.status === 'fulfilled').map(r => r.value);
+        if (fulfilled.length === 0 && coins.length > 0) setError('Failed to fetch chart data');
+        setChartData(fulfilled);
+      })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
   }, [coins, timeframe]);

@@ -48,18 +48,6 @@ function createWindow() {
     }
   });
 
-  // Window control IPC
-  ipcMain.on('window:minimize', () => mainWindow?.minimize());
-  ipcMain.on('window:maximize', () => {
-    if (mainWindow?.isMaximized()) {
-      mainWindow.unmaximize();
-    } else {
-      mainWindow?.maximize();
-    }
-  });
-  ipcMain.on('window:close', () => mainWindow?.hide());
-  ipcMain.handle('window:isMaximized', () => mainWindow?.isMaximized() ?? false);
-
   mainWindow.on('maximize', () => {
     mainWindow.webContents.send('window:maximized-changed', true);
   });
@@ -223,6 +211,18 @@ app.whenReady().then(async () => {
   ipcMain.handle('shell:openExternal', (_event, url) => {
     return shell.openExternal(url);
   });
+
+  // Window control IPC (registered once, outside createWindow to avoid duplicate handler errors)
+  ipcMain.on('window:minimize', () => mainWindow?.minimize());
+  ipcMain.on('window:maximize', () => {
+    if (mainWindow?.isMaximized()) {
+      mainWindow.unmaximize();
+    } else {
+      mainWindow?.maximize();
+    }
+  });
+  ipcMain.on('window:close', () => mainWindow?.hide());
+  ipcMain.handle('window:isMaximized', () => mainWindow?.isMaximized() ?? false);
 
   createWindow();
   createTray();

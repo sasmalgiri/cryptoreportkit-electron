@@ -31,7 +31,11 @@ export default function Dashboard() {
   const { markets, globalData, fearGreed, loading, error } = useMarketData();
   const [selectedCoin, setSelectedCoin] = useState('bitcoin');
   const [showFullDashboard, setShowFullDashboard] = useState(() => {
-    return localStorage.getItem('crk-user-level') !== 'new';
+    try {
+      return localStorage.getItem('crk-user-level') !== 'new';
+    } catch {
+      return true;
+    }
   });
   const currency = useAppStore((s) => s.currency);
 

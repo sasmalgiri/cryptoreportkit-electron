@@ -19,7 +19,10 @@ interface TaxTransaction {
 }
 
 function daysBetween(d1: string, d2: string): number {
-  return Math.abs(new Date(d2).getTime() - new Date(d1).getTime()) / (1000 * 60 * 60 * 24);
+  const t1 = new Date(d1).getTime();
+  const t2 = new Date(d2).getTime();
+  if (isNaN(t1) || isNaN(t2)) return 0;
+  return Math.abs(t2 - t1) / (1000 * 60 * 60 * 24);
 }
 
 function computeTaxTransactions(

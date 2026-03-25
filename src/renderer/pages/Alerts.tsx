@@ -20,6 +20,18 @@ export default function Alerts() {
   const [showSearch, setShowSearch] = useState(false);
   const [creating, setCreating] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
+
+  // Close search dropdown on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
+        setShowSearch(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
 
   const load = async () => {
     try {
@@ -99,7 +111,7 @@ export default function Alerts() {
       <div className="glass-card p-6">
         <h2 className="text-lg font-semibold mb-4">Create Alert</h2>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="relative">
+          <div className="relative" ref={searchContainerRef}>
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
             <input
               value={coinLabel || query}

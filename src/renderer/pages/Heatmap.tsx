@@ -73,7 +73,7 @@ function squarify(
       bestWorst = worstRatio;
     }
 
-    if (rowItems.length === 0) break;
+    if (rowItems.length === 0 || cw <= 0 || ch <= 0) break;
 
     // Lay out the row
     const rowTotal = rowItems.reduce((s, i) => s + i.value, 0);

@@ -73,7 +73,7 @@ export default function Compare() {
   const normalizedData: Record<string, { x: number; y: number }[]> = {};
   for (const [id, prices] of Object.entries(chartData)) {
     if (prices.length === 0) continue;
-    const start = prices[0][1];
+    const start = prices[0][1] || 1;
     normalizedData[id] = prices.map(([t, p]) => ({ x: t, y: ((p - start) / start) * 100 }));
   }
 

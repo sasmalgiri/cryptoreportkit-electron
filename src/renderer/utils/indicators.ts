@@ -131,6 +131,7 @@ export function correlation(a: number[], b: number[]): number {
 export function dailyReturns(prices: number[]): number[] {
   const returns: number[] = [];
   for (let i = 1; i < prices.length; i++) {
+    if (prices[i - 1] === 0) continue;
     returns.push((prices[i] - prices[i - 1]) / prices[i - 1]);
   }
   return returns;
@@ -145,6 +146,7 @@ export function valueAtRisk(returns: number[], confidence = 0.05): number {
 
 /** Sharpe Ratio (annualized, assuming daily returns) */
 export function sharpeRatio(returns: number[], riskFreeRate = 0): number {
+  if (returns.length === 0) return 0;
   const mean = returns.reduce((s, v) => s + v, 0) / returns.length;
   const std = Math.sqrt(returns.reduce((s, v) => s + (v - mean) ** 2, 0) / returns.length);
   if (std === 0) return 0;
@@ -153,6 +155,7 @@ export function sharpeRatio(returns: number[], riskFreeRate = 0): number {
 
 /** Sortino Ratio (annualized) */
 export function sortinoRatio(returns: number[], riskFreeRate = 0): number {
+  if (returns.length === 0) return 0;
   const mean = returns.reduce((s, v) => s + v, 0) / returns.length;
   const downside = returns.filter((r) => r < 0);
   const downsideStd = Math.sqrt(downside.reduce((s, v) => s + v ** 2, 0) / (downside.length || 1));
@@ -162,12 +165,15 @@ export function sortinoRatio(returns: number[], riskFreeRate = 0): number {
 
 /** Max drawdown from price series */
 export function maxDrawdown(prices: number[]): number {
+  if (prices.length === 0) return 0;
   let peak = prices[0];
   let maxDd = 0;
   for (const p of prices) {
     if (p > peak) peak = p;
-    const dd = (peak - p) / peak;
-    if (dd > maxDd) maxDd = dd;
+    if (peak > 0) {
+      const dd = (peak - p) / peak;
+      if (dd > maxDd) maxDd = dd;
+    }
   }
   return maxDd;
 }

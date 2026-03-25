@@ -44,9 +44,13 @@ export default function WalletTracker() {
   const [copied, setCopied] = useState(false);
 
   const toggleChain = (id: string) => {
-    setSelectedChains((prev) =>
-      prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id],
-    );
+    setSelectedChains((prev) => {
+      if (prev.includes(id)) {
+        if (prev.length <= 1) return prev;
+        return prev.filter((c) => c !== id);
+      }
+      return [...prev, id];
+    });
   };
 
   const handleSearch = async () => {

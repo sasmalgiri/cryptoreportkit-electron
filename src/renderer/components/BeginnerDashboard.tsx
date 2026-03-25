@@ -29,7 +29,7 @@ export function BeginnerDashboard({ onShowFullDashboard }: { onShowFullDashboard
   function toggleCheck(key: string) {
     const next = { ...checklist, [key]: !checklist[key] };
     setChecklist(next);
-    localStorage.setItem('crk-beginner-checklist', JSON.stringify(next));
+    try { localStorage.setItem('crk-beginner-checklist', JSON.stringify(next)); } catch { /* */ }
   }
 
   const completedCount = Object.values(checklist).filter(Boolean).length;
@@ -177,7 +177,7 @@ export function BeginnerDashboard({ onShowFullDashboard }: { onShowFullDashboard
           <button
             type="button"
             onClick={() => {
-              localStorage.setItem(LEVEL_KEY, 'some');
+              try { localStorage.setItem(LEVEL_KEY, 'some'); } catch { /* */ }
               onShowFullDashboard();
             }}
             className="px-4 py-2 text-xs text-gray-500 hover:text-white transition-colors"
